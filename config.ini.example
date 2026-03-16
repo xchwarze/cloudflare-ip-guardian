@@ -1,0 +1,74 @@
+[general]
+# Path to your nginx access log
+log_file = /var/log/nginx/domains/web.com.log
+
+# Number of last log lines to analyze
+lines = 5000
+
+# Cache file to avoid repeated API queries
+cache_file = /root/abusive_ips_cache.json
+
+# Cache expiry in days (IPs are re-checked after this period)
+cache_expiry_days = 7
+
+# Number of concurrent API queries.
+# "auto" = calculated based on IPs to check and CPU count (recommended).
+# Or set a fixed number (2-20). AbuseIPDB free plan = 1000 queries/day.
+workers = auto
+
+# Minimum number of times an IP must appear in the log before querying AbuseIPDB.
+# Helps avoid wasting API calls on one-off visitors. Default: 3
+min_hits = 3
+
+[abuseipdb]
+# Get your free API key at https://www.abuseipdb.com/account/api
+# Free plan: 1000 queries/day
+api_key = YOUR_ABUSEIPDB_API_KEY
+
+# Minimum abuse confidence score to consider an IP abusive (0-100)
+threshold = 30
+
+# Check reports from the last N days
+max_age_days = 90
+
+# Report abusive IPs back to AbuseIPDB after blocking them.
+# This helps the community by increasing the score for confirmed abusive IPs.
+# Default: false (off). Set to true to enable.
+report = false
+
+# AbuseIPDB category IDs to include in reports (comma-separated).
+# Common categories:
+#   15 = Hacking
+#   18 = Brute-Force
+#   21 = Web App Attack
+# Full list: https://www.abuseipdb.com/categories
+report_categories = 15
+
+# Template for the comment sent with each report.
+# Use %% for a literal % sign (standard INI escaping).
+# Available placeholders: {score} {country} {isp} {reports}
+#                         {usage_type} {domain} {is_tor}
+report_comment = Score: {score}%% | {country} | {isp} | Reports: {reports} | Type: {usage_type}
+
+[cloudflare]
+# Find these in your Cloudflare dashboard:
+#   Zone ID: Dashboard > your domain > Overview > right column, bottom
+#   API Token: My Profile > API Tokens > Create Token
+#              Required permissions: Zone > Firewall Services > Edit
+api_token = YOUR_CLOUDFLARE_API_TOKEN
+zone_id = YOUR_ZONE_ID
+
+# Block method: "cloudflare" or "nginx" or "both"
+block_method = cloudflare
+
+[nginx]
+# Only used if block_method includes "nginx"
+block_file = /etc/nginx/conf.d/blocked_ips.conf
+
+[cleanup]
+# Remove rules older than N days (used by cleanup_rules.py)
+days = 30
+
+# Only remove rules created by check_abusive_ips.py
+# (rules whose notes start with "Auto-blocked")
+only_auto = true
