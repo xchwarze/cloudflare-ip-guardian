@@ -97,6 +97,43 @@ python3 cleanup_rules.py --only-auto --days 14
 python3 cleanup_rules.py --dry-run --days 0
 ```
 
+### query_rules.py
+
+Queries active Cloudflare IP Access Rules. Useful for auditing blocked IPs when no local logs were kept.
+
+```bash
+# List all active rules
+python3 query_rules.py
+
+# Look up a specific IP
+python3 query_rules.py --ip 1.2.3.4
+
+# Substring match — useful for ranges
+python3 query_rules.py --ip 192.168
+
+# Show only block rules, sorted oldest-first
+python3 query_rules.py --mode block --sort age
+
+# Show only rules created by check_abusive_ips.py
+python3 query_rules.py --only-auto
+
+# Rules added in the last 7 days
+python3 query_rules.py --days 7
+
+# Rules older than 30 days (candidates for cleanup)
+python3 query_rules.py --older-than 30
+
+# Search by keyword in notes or IP
+python3 query_rules.py --search "xmlrpc"
+
+# Statistics summary only (no table)
+python3 query_rules.py --stats --no-table
+
+# Export filtered results
+python3 query_rules.py --mode block --export csv
+python3 query_rules.py --only-auto --export json --output blocked_auto.json
+```
+
 ## AbuseIPDB Reporting
 
 By default, the checker only queries AbuseIPDB to check IP scores. You can optionally enable **reporting** to contribute back to the community. When enabled, every IP that gets blocked is also reported to AbuseIPDB with the configured categories and a comment.
